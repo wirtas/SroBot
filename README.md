@@ -3,7 +3,7 @@ Bocik przypominający rozmówcom o utrzymywaniu należytego dystansu poprzez reg
 
 
 Bota można stworzyć poprzez telegram pisząc do @BotFather.
-Stamtąd bierzemy token, wklejamy go do pliku instalujemy pip'em requirementsy voila odpalamy pythonem.
+Stamtąd bierzemy token, wklejamy go do pliku instalujemy pip'em requirementsy i voila odpalamy pythonem.
 Należy dać jeszcze botowi uprawnienia do odczytywania wiadomości, również u BotFathera.
 
 Komenda '/chance' zmienia prawdopodobieństwo odpisywania. Więcej info w '/help'
