@@ -50,7 +50,7 @@ def change_chance(message):
         else:
             BOT.reply_to(message, 'Podaj wartość od 0 do 100 ziomeczku')
     except ValueError:
-        pass
+        BOT.reply_to(message, 'Podaj wartość od 0 do 100 ziomeczku')
 
 # HELP COMMAND
 @BOT.message_handler(commands=['help'])
