@@ -6,7 +6,7 @@ import random
 import telebot
 import json
 
-TOKEN = ""
+TOKEN = "PASTE_YOUR_TOKEN_HERE"
 BOT = telebot.TeleBot(TOKEN)
 
 
@@ -37,13 +37,14 @@ def connect():
 # GROUP PROBABILITY CHANGE
 @BOT.message_handler(commands=['chance'])
 def change_chance(message):
+    message.chat.id = str(message.chat.id)
     try:
         if float(message.text.split()[-1]) >= 0 and \
            float(message.text.split()[-1]) <= 100:
-            GROUP_CHANCES[str(message.chat.id)] = \
+            GROUP_CHANCES[message.chat.id] = \
                 float(message.text.split()[-1])
             BOT.reply_to(message, 'Szansa zmieniona na '
-                         + str(GROUP_CHANCES[str(message.chat.id)]) + '%')
+                         + str(GROUP_CHANCES[message.chat.id]) + '%')
             with open('settings.json', 'w') as fp:
                 json.dump(GROUP_CHANCES, fp)
         else:
@@ -80,12 +81,13 @@ def echo_all(message):
 
 # GROUP RESPONSE
     if(message.chat.type == "group") or (message.chat.type == "supergroup"):
-        if str(message.chat.id) not in GROUP_CHANCES:
-            GROUP_CHANCES[str(message.chat.id)] = 1.0
+        message.chat.id = str(message.chat.id)
+        if message.chat.id not in GROUP_CHANCES:
+            GROUP_CHANCES[message.chat.id] = 1.0
             with open('settings.json', 'w') as fp:
                 json.dump(GROUP_CHANCES, fp)
         rand_response = random.random()
-        if GROUP_CHANCES[str(message.chat.id)] * 0.01 > rand_response:
+        if GROUP_CHANCES[message.chat.id] * 0.01 > rand_response:
             if (rand_response > 0.5 and len(srext)) > 2:
                 BOT.reply_to(message, srext)
             else:
