@@ -1,5 +1,5 @@
 # SroBot
-Bocik trzymający gówno poza rozmową
+Bocik przypominający rozmówcom o utrzymywaniu należytego dystansu.
 
 
 Bota można stworzyć poprzez telegram pisząc do @BotFather.
