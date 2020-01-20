@@ -3,23 +3,27 @@ Telegram bot that reminds people about keeping their shit out of conversation
 '''
 from time import sleep
 import random
-import telebot
 import json
+import telebot
+
 
 TOKEN = "PASTE_YOUR_TOKEN_HERE"
 BOT = telebot.TeleBot(TOKEN)
 
 
 def read_settings():
+    '''
+    Read existing values
+    '''
     try:
-        with open('settings.json', 'r') as fp:
-            if fp.read(2) != '[]':
-                fp.seek(0)
-                chances = json.load(fp)
+        with open('settings.json', 'r') as settings_json:
+            if settings_json.read(2) != '[]':
+                settings_json.seek(0)
+                chances = json.load(settings_json)
                 return chances
     except FileNotFoundError:
         return {}
-
+    raise ImportError()
 
 GROUP_CHANCES = read_settings()
 
@@ -37,6 +41,9 @@ def connect():
 # GROUP PROBABILITY CHANGE
 @BOT.message_handler(commands=['chance'])
 def change_chance(message):
+    '''
+    Setting probabilty on group chats via /chance command
+    '''
     message.chat.id = str(message.chat.id)
     try:
         if float(message.text.split()[-1]) >= 0 and \
@@ -45,8 +52,8 @@ def change_chance(message):
                 float(message.text.split()[-1])
             BOT.reply_to(message, 'Szansa zmieniona na '
                          + str(GROUP_CHANCES[message.chat.id]) + '%')
-            with open('settings.json', 'w') as fp:
-                json.dump(GROUP_CHANCES, fp)
+            with open('settings.json', 'w') as settings_json:
+                json.dump(GROUP_CHANCES, settings_json)
         else:
             BOT.reply_to(message, 'Podaj wartość od 0 do 100 ziomeczku')
     except ValueError:
@@ -55,6 +62,9 @@ def change_chance(message):
 # HELP COMMAND
 @BOT.message_handler(commands=['help'])
 def help_message(message):
+    '''
+    Response to /help command
+    '''
     BOT.reply_to(message,
                  'Jedyna komenda (poza tą ofc) to \'/chance\','
                  ' która zmienia prawdopodobieństwo odpalenia się'
@@ -84,8 +94,8 @@ def echo_all(message):
         message.chat.id = str(message.chat.id)
         if message.chat.id not in GROUP_CHANCES:
             GROUP_CHANCES[message.chat.id] = 1.0
-            with open('settings.json', 'w') as fp:
-                json.dump(GROUP_CHANCES, fp)
+            with open('settings.json', 'w') as settings_json:
+                json.dump(GROUP_CHANCES, settings_json)
         rand_response = random.random()
         if GROUP_CHANCES[message.chat.id] * 0.01 > rand_response:
             if (rand_response > 0.5 and len(srext)) > 2:
