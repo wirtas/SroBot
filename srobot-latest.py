@@ -5,7 +5,7 @@ from time import sleep
 import random
 import telebot
 
-TOKEN = "PASTE_YOUR_TOKEN_HERE"
+TOKEN = ""
 BOT = telebot.TeleBot(TOKEN)
 
 
@@ -30,17 +30,30 @@ def connect():
         sleep(10)
         connect()
 
-
+# GROUP PROBABILITY CHANGE
 @BOT.message_handler(commands=['chance'])
 def change_chance(message):
     try:
-        GROUP_CHANCES[message.chat.id] = float(message.text.split()[-1])
-        BOT.reply_to(message, 'Szansa zmieniona na ' + str(GROUP_CHANCES[message.chat.id]) + '%')
-        f = open("settings.txt", "w")
-        f.write(str(GROUP_CHANCES))
-        f.close()
+        if float(message.text.split()[-1]) >= 0 and \
+           float(message.text.split()[-1]) <= 100:
+            GROUP_CHANCES[message.chat.id] = float(message.text.split()[-1])
+            BOT.reply_to(message, 'Szansa zmieniona na '
+                         + str(GROUP_CHANCES[message.chat.id]) + '%')
+            f = open("settings.txt", "w")
+            f.write(str(GROUP_CHANCES))
+            f.close()
+        else:
+            BOT.reply_to(message, 'Podaj wartość od 0 do 100 ziomeczku')
     except ValueError:
         pass
+
+# GROUP PROBABILITY CHANGE
+@BOT.message_handler(commands=['help'])
+def help_message(message):
+    BOT.reply_to(
+                'Jedyna komenda (poza tą ofc) to \'/chance\','
+                ' która zmienia prawdopodobieństwo odpalenia się'
+                ' bota na grupie w procentach. np. /chance 50')
 
 
 @BOT.message_handler(func=lambda m: True)
@@ -50,7 +63,8 @@ def echo_all(message):
     '''
 # SREXT GENERATOR
     srext = ''
-    message.text = ''.join(e for e in message.text if e.isalnum() or e.isspace())
+    message.text = ''.join(e for e in message.text
+                           if e.isalnum() or e.isspace())
     if len(message.text) > 0:
         message.text = message.text.lower()
         for index, letter in enumerate(message.text.split()[-1]):
@@ -71,7 +85,7 @@ def echo_all(message):
         if GROUP_CHANCES[message.chat.id] * 0.01 > rand_response:
             if (rand_response > 0.5 and len(srext)) > 2:
                 BOT.reply_to(message, srext)
-            elif(rand_response < 0.5) and len(message.text) > 3:
+            else:
                 BOT.reply_to(message, 'nie zesraj sie')
 # PRIV RESPONSE
     else:
