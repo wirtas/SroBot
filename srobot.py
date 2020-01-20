@@ -7,8 +7,7 @@ import json
 import telebot
 
 
-TOKEN = "PASTE_YOUR_TOKEN_HERE"
-BOT = telebot.TeleBot(TOKEN)
+BOT = telebot.TeleBot('PASTE_YOUR_TOKEN_HERE')
 
 
 def read_settings():
@@ -50,6 +49,7 @@ def change_chance(message):
            float(message.text.split()[-1]) <= 100:
             GROUP_CHANCES[message.chat.id] = \
                 float(message.text.split()[-1])
+            GROUP_CHANCES[message.chat.id] = round(GROUP_CHANCES[message.chat.id], 2)
             BOT.reply_to(message, 'Szansa zmieniona na '
                          + str(GROUP_CHANCES[message.chat.id]) + '%')
             with open('settings.json', 'w') as settings_json:
