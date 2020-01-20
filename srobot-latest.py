@@ -6,7 +6,7 @@ import random
 import telebot
 import json
 
-TOKEN = "PASTE_YOUR_TOKEN_HERE"
+TOKEN = ""
 BOT = telebot.TeleBot(TOKEN)
 
 
@@ -40,7 +40,8 @@ def change_chance(message):
     try:
         if float(message.text.split()[-1]) >= 0 and \
            float(message.text.split()[-1]) <= 100:
-            GROUP_CHANCES[str(message.chat.id)] = float(message.text.split()[-1])
+            GROUP_CHANCES[str(message.chat.id)] = \
+                float(message.text.split()[-1])
             BOT.reply_to(message, 'Szansa zmieniona na '
                          + str(GROUP_CHANCES[str(message.chat.id)]) + '%')
             with open('settings.json', 'w') as fp:
@@ -53,10 +54,10 @@ def change_chance(message):
 # HELP COMMAND
 @BOT.message_handler(commands=['help'])
 def help_message(message):
-    BOT.reply_to(
-                'Jedyna komenda (poza tą ofc) to \'/chance\','
-                ' która zmienia prawdopodobieństwo odpalenia się'
-                ' bota na grupie w procentach. np. /chance 50')
+    BOT.reply_to(message,
+                 'Jedyna komenda (poza tą ofc) to \'/chance\','
+                 ' która zmienia prawdopodobieństwo odpalenia się'
+                 ' bota na grupie w procentach. np. /chance 50')
 
 
 @BOT.message_handler(func=lambda m: True)
