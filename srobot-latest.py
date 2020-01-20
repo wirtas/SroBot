@@ -4,17 +4,21 @@ Telegram bot that reminds people about keeping their shit out of conversation
 from time import sleep
 import random
 import telebot
+import json
 
-TOKEN = ""
+TOKEN = "PASTE_YOUR_TOKEN_HERE"
 BOT = telebot.TeleBot(TOKEN)
 
 
 def read_settings():
-    f = open("settings.txt", "a+")
-    f.seek(0)
-    chances = f.read()
-    f.close()
-    return eval(chances)
+    try:
+        with open('settings.json', 'r') as fp:
+            if fp.read(2) != '[]':
+                fp.seek(0)
+                chances = json.load(fp)
+                return chances
+    except FileNotFoundError:
+        return {}
 
 
 GROUP_CHANCES = read_settings()
@@ -36,18 +40,17 @@ def change_chance(message):
     try:
         if float(message.text.split()[-1]) >= 0 and \
            float(message.text.split()[-1]) <= 100:
-            GROUP_CHANCES[message.chat.id] = float(message.text.split()[-1])
+            GROUP_CHANCES[str(message.chat.id)] = float(message.text.split()[-1])
             BOT.reply_to(message, 'Szansa zmieniona na '
-                         + str(GROUP_CHANCES[message.chat.id]) + '%')
-            f = open("settings.txt", "w")
-            f.write(str(GROUP_CHANCES))
-            f.close()
+                         + str(GROUP_CHANCES[str(message.chat.id)]) + '%')
+            with open('settings.json', 'w') as fp:
+                json.dump(GROUP_CHANCES, fp)
         else:
             BOT.reply_to(message, 'Podaj wartość od 0 do 100 ziomeczku')
     except ValueError:
         pass
 
-# GROUP PROBABILITY CHANGE
+# HELP COMMAND
 @BOT.message_handler(commands=['help'])
 def help_message(message):
     BOT.reply_to(
@@ -76,13 +79,12 @@ def echo_all(message):
 
 # GROUP RESPONSE
     if(message.chat.type == "group") or (message.chat.type == "supergroup"):
-        if message.chat.id not in GROUP_CHANCES:
-            GROUP_CHANCES[message.chat.id] = 1.0
-            f = open("settings.txt", "w")
-            f.write(str(GROUP_CHANCES))
-            f.close()
+        if str(message.chat.id) not in GROUP_CHANCES:
+            GROUP_CHANCES[str(message.chat.id)] = 1.0
+            with open('settings.json', 'w') as fp:
+                json.dump(GROUP_CHANCES, fp)
         rand_response = random.random()
-        if GROUP_CHANCES[message.chat.id] * 0.01 > rand_response:
+        if GROUP_CHANCES[str(message.chat.id)] * 0.01 > rand_response:
             if (rand_response > 0.5 and len(srext)) > 2:
                 BOT.reply_to(message, srext)
             else:
