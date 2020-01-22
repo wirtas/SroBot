@@ -71,41 +71,54 @@ def help_message(message):
                  ' bota na grupie w procentach. np. /chance 50')
 
 
+def generate_srext(text):
+    srext = ''
+    text = ''.join(e for e in text
+                           if e.isalnum() or e.isspace())
+    if len(text) > 0:
+        text = text.lower()
+        for index, letter in enumerate(text.split()[-1]):
+            if letter in ['a', 'e', 'i', 'o', 'u', 'y']:
+                srext = 'sr' + text.split()[-1][index:]
+                break
+            if index == len(text.split()[-1])-1:
+                break
+    
+    return srext
+
+def dump_new_chance(chat_id):
+    GROUP_CHANCES[chat_id] = 1.0
+    with open('settings.json', 'w') as settings_json:
+        json.dump(GROUP_CHANCES, settings_json)
+
+def handle_group_message(message):
+    chat_id = str(message.chat.id)
+
+    if chat_id not in GROUP_CHANCES:
+        dump_new_chance(chat_id)
+
+    rand_response = random.random()
+
+    if GROUP_CHANCES[chat_id] * 0.01 > rand_response:
+        srext = generate_srext(message.text)
+        if (rand_response > 0.5 and len(srext)) > 2:
+            BOT.reply_to(message, srext)
+        else:
+            BOT.reply_to(message, 'nie zesraj sie')
+
+def handle_private_message(message):
+    srext = generate_srext(message.text)
+    if len(srext) > 2:
+            BOT.reply_to(message, srext)
+
 @BOT.message_handler(func=lambda m: True)
 def echo_all(message):
     '''
     Changing text into srext and response conditions
     '''
-# SREXT GENERATOR
-    srext = ''
-    message.text = ''.join(e for e in message.text
-                           if e.isalnum() or e.isspace())
-    if len(message.text) > 0:
-        message.text = message.text.lower()
-        for index, letter in enumerate(message.text.split()[-1]):
-            if letter in ['a', 'e', 'i', 'o', 'u', 'y']:
-                srext = 'sr' + message.text.split()[-1][index:]
-                break
-            if index == len(message.text.split()[-1])-1:
-                break
-
-# GROUP RESPONSE
     if(message.chat.type == "group") or (message.chat.type == "supergroup"):
-        message.chat.id = str(message.chat.id)
-        if message.chat.id not in GROUP_CHANCES:
-            GROUP_CHANCES[message.chat.id] = 1.0
-            with open('settings.json', 'w') as settings_json:
-                json.dump(GROUP_CHANCES, settings_json)
-        rand_response = random.random()
-        if GROUP_CHANCES[message.chat.id] * 0.01 > rand_response:
-            if (rand_response > 0.5 and len(srext)) > 2:
-                BOT.reply_to(message, srext)
-            else:
-                BOT.reply_to(message, 'nie zesraj sie')
-# PRIV RESPONSE
+        handle_group_message(message)
     else:
-        if len(srext) > 2:
-            BOT.reply_to(message, srext)
-
+        handle_private_message(message)
 
 connect()
